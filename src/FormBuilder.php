@@ -10,6 +10,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Traits\Macroable;
@@ -116,7 +117,7 @@ class FormBuilder
      * @param  string                                     $csrfToken
      * @param  Request                                    $request
      */
-    public function __construct(HtmlBuilder $html, UrlGenerator $url, Factory $view, $csrfToken, Request $request = null)
+    public function __construct(HtmlBuilder $html, UrlGenerator $url, Factory $view, $csrfToken, ?Request $request = null)
     {
         $this->url = $url;
         $this->html = $html;
@@ -709,16 +710,16 @@ class FormBuilder
      * @param  string $name
      * @param  string $selected
      * @param  array  $options
-     * @param  string $format
+     * @param  string $format  A PHP date() format string (was a strftime() format prior to 12.x)
      *
      * @return \Illuminate\Support\HtmlString
      */
-    public function selectMonth($name, $selected = null, $options = [], $format = '%B')
+    public function selectMonth($name, $selected = null, $options = [], $format = 'F')
     {
         $months = [];
 
         foreach (range(1, 12) as $month) {
-            $months[$month] = strftime($format, mktime(0, 0, 0, $month, 1));
+            $months[$month] = Carbon::create(null, $month, 1)->translatedFormat($format);
         }
 
         return $this->select($name, $months, $selected, $options);
